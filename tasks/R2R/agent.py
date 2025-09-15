@@ -148,7 +148,10 @@ class Seq2SeqAgent(BaseAgent):
         self.decoder = decoder
         self.episode_len = episode_len
         self.losses = []
-        self.criterion = nn.CrossEntropyLoss(ignore_index = self.model_actions.index('<ignore>'))
+        # TODO: 补充 self.criterion 的定义
+        # 提示：选择CrossEntropy作为损失函数并设置其参数
+        # 注意考虑模型的输出和目标标签的格式等因素
+        self.criterion = None # 你的代码
 
     @staticmethod
     def n_inputs():

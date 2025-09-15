@@ -89,10 +89,10 @@ class Evaluation(object):
 
         spls = []
         for err,length,sp in zip(self.scores['nav_errors'],self.scores['trajectory_lengths'],self.scores['shortest_path_lengths']):
-            if err < self.error_margin:
-                spls.append(sp/max(length,sp))
-            else:
-                spls.append(0)
+            # TODO: 补充 spl 的计算过程
+            # 提示：根据 SPL 的定义，判断是否成功到达目标点，并计算相应的 SPL 值
+            # 注意考虑导航准确度、轨迹长度和最短路径长度等因素
+            pass
 
         score_summary ={
             'length': np.average(self.scores['trajectory_lengths']),
@@ -111,7 +111,7 @@ RESULT_DIR = 'tasks/R2R/results/'
 def eval_simple_agents():
     ''' Run simple baselines on each split. '''
     for split in ['train', 'val_seen', 'val_unseen']:
-        env = R2RBatch('img_features/ResNet-152-imagenet.tsv', batch_size=1, splits=[split])
+        env = R2RBatch(None, batch_size=1, splits=[split])
         ev = Evaluation([split])
 
         for agent_type in ['Stop', 'Shortest', 'Random']:
@@ -141,7 +141,7 @@ def eval_seq2seq():
 if __name__ == '__main__':
 
     eval_simple_agents()
-    eval_seq2seq()
+    #eval_seq2seq()
 
 
 

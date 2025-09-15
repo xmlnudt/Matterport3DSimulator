@@ -10,7 +10,7 @@ class EncoderLSTM(nn.Module):
     ''' Encodes navigation instructions, returning hidden state context (for
         attention methods) and a decoder initial state. '''
 
-    def __init__(self, vocab_size, embedding_size, hidden_size, padding_idx, 
+    def __init__(self, vocab_size, embedding_size, hidden_size, padding_idx,
                             dropout_ratio, bidirectional=False, num_layers=1):
         super(EncoderLSTM, self).__init__()
         self.embedding_size = embedding_size
@@ -19,9 +19,10 @@ class EncoderLSTM(nn.Module):
         self.num_directions = 2 if bidirectional else 1
         self.num_layers = num_layers
         self.embedding = nn.Embedding(vocab_size, embedding_size, padding_idx)
-        self.lstm = nn.LSTM(embedding_size, hidden_size, self.num_layers, 
-                            batch_first=True, dropout=dropout_ratio, 
-                            bidirectional=bidirectional)
+        # TODO: 补充 self.lstm 的定义
+        # 提示：根据类中的参数和 LSTM 的工作原理，合理设置 self.lstm 的参数
+        # 注意考虑输入输出维度、层数、是否双向以及dropout_ratio等参数
+        self.lstm = None # 你的代码
         self.encoder2decoder = nn.Linear(hidden_size * self.num_directions,
             hidden_size * self.num_directions
         )
@@ -42,7 +43,7 @@ class EncoderLSTM(nn.Module):
         return h0.cuda(), c0.cuda()
 
     def forward(self, inputs, lengths):
-        ''' Expects input vocab indices as (batch, seq_len). Also requires a 
+        ''' Expects input vocab indices as (batch, seq_len). Also requires a
             list of lengths for dynamic batching. '''
         embeds = self.embedding(inputs)   # (batch, seq_len, embedding_size)
         embeds = self.drop(embeds)
@@ -66,7 +67,7 @@ class EncoderLSTM(nn.Module):
 
 
 class SoftDotAttention(nn.Module):
-    '''Soft Dot Attention. 
+    '''Soft Dot Attention.
 
     Ref: http://www.aclweb.org/anthology/D15-1166
     Adapted from PyTorch OPEN NMT.
@@ -92,8 +93,8 @@ class SoftDotAttention(nn.Module):
         # Get attention
         attn = torch.bmm(context, target).squeeze(2)  # batch x seq_len
         if mask is not None:
-            # -Inf masking prior to the softmax 
-            attn.data.masked_fill_(mask, -float('inf'))              
+            # -Inf masking prior to the softmax
+            attn.data.masked_fill_(mask, -float('inf'))
         attn = self.sm(attn)
         attn3 = attn.view(attn.size(0), 1, attn.size(1))  # batch x 1 x seq_len
 
@@ -107,7 +108,7 @@ class SoftDotAttention(nn.Module):
 class AttnDecoderLSTM(nn.Module):
     ''' An unrolled LSTM with attention over instructions for decoding navigation actions. '''
 
-    def __init__(self, input_action_size, output_action_size, embedding_size, hidden_size, 
+    def __init__(self, input_action_size, output_action_size, embedding_size, hidden_size,
                       dropout_ratio, feature_size=2048):
         super(AttnDecoderLSTM, self).__init__()
         self.embedding_size = embedding_size
@@ -116,7 +117,10 @@ class AttnDecoderLSTM(nn.Module):
         self.embedding = nn.Embedding(input_action_size, embedding_size)
         self.drop = nn.Dropout(p=dropout_ratio)
         self.lstm = nn.LSTMCell(embedding_size+feature_size, hidden_size)
-        self.attention_layer = SoftDotAttention(hidden_size)
+        # TODO: 补充 self.attention_layer 的定义
+        # 提示：根据注意力机制的原理，定义一个 SoftDotAttention 类的实例
+        # 注意考虑隐藏层维度等因素
+        self.attention_layer = None # 你的代码
         self.decoder2action = nn.Linear(hidden_size, output_action_size)
 
     def forward(self, action, feature, h_0, c_0, ctx, ctx_mask=None):
@@ -135,7 +139,11 @@ class AttnDecoderLSTM(nn.Module):
         drop = self.drop(concat_input)
         h_1,c_1 = self.lstm(drop, (h_0,c_0))
         h_1_drop = self.drop(h_1)
-        h_tilde, alpha = self.attention_layer(h_1_drop, ctx, ctx_mask)        
+        # TODO: 补充 self.attention_layer 的使用方法
+        # 提示：根据注意力机制的原理，将解码器 LSTM 的输出传递给注意力层
+        # 并根据注意力权重计算加权后的上下文信息
+        # 注意考虑输入输出维度等因素
+        h_tilde, alpha = None # 你的代码
         logit = self.decoder2action(h_tilde)
         return h_1,c_1,alpha,logit
 
