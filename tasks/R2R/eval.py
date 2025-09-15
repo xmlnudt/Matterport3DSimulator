@@ -111,7 +111,7 @@ RESULT_DIR = 'tasks/R2R/results/'
 def eval_simple_agents():
     ''' Run simple baselines on each split. '''
     for split in ['train', 'val_seen', 'val_unseen']:
-        env = R2RBatch(None, batch_size=1, splits=[split])
+        env = R2RBatch('img_features/ResNet-152-imagenet.tsv', batch_size=1, splits=[split])
         ev = Evaluation([split])
 
         for agent_type in ['Stop', 'Shortest', 'Random']:
@@ -141,7 +141,7 @@ def eval_seq2seq():
 if __name__ == '__main__':
 
     eval_simple_agents()
-    #eval_seq2seq()
+    eval_seq2seq()
 
 
 
