@@ -19,10 +19,10 @@ class EncoderLSTM(nn.Module):
         self.num_directions = 2 if bidirectional else 1
         self.num_layers = num_layers
         self.embedding = nn.Embedding(vocab_size, embedding_size, padding_idx)
-        # TODO: 补充 self.lstm 的定义
-        # 提示：根据类中的参数和 LSTM 的工作原理，合理设置 self.lstm 的参数
-        # 注意考虑输入输出维度、层数、是否双向以及dropout_ratio等参数
-        self.lstm = None # 你的代码
+        # LSTM 网络定义
+        self.lstm = nn.LSTM(embedding_size, hidden_size, self.num_layers,
+                            batch_first=True, dropout=dropout_ratio,
+                            bidirectional=bidirectional)
         self.encoder2decoder = nn.Linear(hidden_size * self.num_directions,
             hidden_size * self.num_directions
         )
@@ -117,10 +117,8 @@ class AttnDecoderLSTM(nn.Module):
         self.embedding = nn.Embedding(input_action_size, embedding_size)
         self.drop = nn.Dropout(p=dropout_ratio)
         self.lstm = nn.LSTMCell(embedding_size+feature_size, hidden_size)
-        # TODO: 补充 self.attention_layer 的定义
-        # 提示：根据注意力机制的原理，定义一个 SoftDotAttention 类的实例
-        # 注意考虑隐藏层维度等因素
-        self.attention_layer = None # 你的代码
+        # 注意力层的定义
+        self.attention_layer = SoftDotAttention(hidden_size)
         self.decoder2action = nn.Linear(hidden_size, output_action_size)
 
     def forward(self, action, feature, h_0, c_0, ctx, ctx_mask=None):
@@ -139,11 +137,8 @@ class AttnDecoderLSTM(nn.Module):
         drop = self.drop(concat_input)
         h_1,c_1 = self.lstm(drop, (h_0,c_0))
         h_1_drop = self.drop(h_1)
-        # TODO: 补充 self.attention_layer 的使用方法
-        # 提示：根据注意力机制的原理，将解码器 LSTM 的输出传递给注意力层
-        # 并根据注意力权重计算加权后的上下文信息
-        # 注意考虑输入输出维度等因素
-        h_tilde, alpha = None # 你的代码
+        # 注意力层的使用
+        h_tilde, alpha = self.attention_layer(h_1_drop, ctx, ctx_mask)
         logit = self.decoder2action(h_tilde)
         return h_1,c_1,alpha,logit
 

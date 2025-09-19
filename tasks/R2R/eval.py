@@ -89,10 +89,11 @@ class Evaluation(object):
 
         spls = []
         for err,length,sp in zip(self.scores['nav_errors'],self.scores['trajectory_lengths'],self.scores['shortest_path_lengths']):
-            # TODO: 补充 spl 的计算过程
-            # 提示：根据 SPL 的定义，判断是否成功到达目标点，并计算相应的 SPL 值
-            # 注意考虑导航准确度、轨迹长度和最短路径长度等因素
-            pass
+            # SPL 计算过程
+            if err < self.error_margin:
+                spls.append(sp/max(length,sp))
+            else:
+                spls.append(0)
 
         score_summary ={
             'length': np.average(self.scores['trajectory_lengths']),
